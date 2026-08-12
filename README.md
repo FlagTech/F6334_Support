@@ -1,4 +1,4 @@
-# 旗標科技《ChatGPT AI Agent 工作術：89個實作範例》服務專區
+# 旗標科技《ChatGPT AI Agent 工作術》服務專區
 
 - [第 1 章 輕鬆上手 ChatGPT Work：安裝、設定與基礎操作](ch01.md)
 - [第 2 章 讓 ChatGPT 幫你上網做功課：資料蒐集與市場研究](ch02.md)

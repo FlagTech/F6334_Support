@@ -1,0 +1,16 @@
+﻿Company,Contact Name,Title,Phone,Email,Vendor Type,Last Contact,Notes
+ASUSTeK Computer Inc.,Kelly Wang,BD Manager,02 5550 1201,kelly.wang@example.com,Hardware,2026/05/12,formal company name
+Acer Inc.,Jason Lin,Channel Manager,+886-2-5550-1202,jason.lin@example.com,Hardware,2026-06-03,
+BenQ Corp.,Amy Hsu,Display Consultant,5550-1203,amy.hsu@example.com,Display,2026/07/18,company abbreviation
+"Chunghwa Telecom Co., Ltd.",Olivia Kao,Corporate Service,+886 2 5550 1205,olivia.kao@example.com,Telecom,2026/04/09,
+FarEasTone Telecom,Eddie Wu,Account Executive,02-5550-1206,eddie.wu@example.com,Telecom,2026/03/22,
+91APP Inc.,Tina Yu,Retail Platform,,tina.yu@example.com,E-commerce,2026/07/18,phone missing
+KKday,Howard Lai,Partnership,02-5550-1208,howard.lai@example.com,Travel,2026/02/19,
+Gogoro Taiwan,Ivy Tseng,Fleet Program,+886-2-5550-1209,ivy.tseng@example.com,Mobility,2026/06/11,
+DHL Express Taiwan,Sean Huang,Logistics Manager,02 5550 1210,sean.huang@example.com,Logistics,2026/06/28,same person as card
+Taiwan Mobile,Peggy Lo,Enterprise Service,02-5550-2201,peggy.lo@example.com,Telecom,2026/07/18,from sign-in only
+Lion Travel,Vincent Chou,MICE Specialist,02-5550-2202,vincent.chou@example.com,Travel,2026/07/18,from sign-in only
+Kdan Mobile,May Lin,SaaS Consultant,02-5550-2203,may.lin@example.com,Software,2026/07/18,new vendor
+Taiwan Taxi,Eric Peng,Fleet Service,,eric.peng@example.com,Transportation,2026/07/18,phone missing
+Taipei International Convention Center,Grace Wu,Venue Coordinator,02-5550-2205,grace.wu@example.com,Venue,2026/07/18,Chinese name appears on sign-in
+Delta Electronics,Nina Fang,Facility Solutions,02-5550-2301,nina.fang@example.com,Facility,2026/01/15,old record only

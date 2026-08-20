@@ -1,0 +1,56 @@
+Dear Purchasing Team,
+
+Please find attached the BrightPro product and price sheet for quotation BP-26802-R2, issued August 2, 2026. All unit prices in the attachment are quoted in USD.
+
+Please note the following commercial conditions because they directly affect the final purchasing cost and delivery feasibility:
+
+Freight charge
+
+Freight is USD 85 per purchase order, not per product line.
+
+The product subtotal used for the free-shipping test excludes freight.
+
+Free-shipping rule
+
+Free shipping applies only when both conditions are satisfied on the same purchase order:
+
+Total quantity across all quoted product models is greater than 120 units; and
+
+Product subtotal is greater than USD 3,500.
+
+Meeting only one condition does not qualify for free shipping. For calculation purposes, the practical minimums are 121 units and USD 3,500.01.
+
+Payment and exchange rate
+
+Payment is due in full on the order date.
+
+The quotation does not lock a TWD exchange rate.
+
+USD product charges and any payable USD freight will be converted to TWD using the spot USD/TWD exchange rate on the payment date.
+
+The final TWD purchasing cost may therefore change with the exchange rate.
+
+Standard shipment schedule
+
+For the demonstration order date of August 5, 2026, quantities within the standard availability shown in the attachment are estimated to:
+
+Ship on August 12, 2026; and
+
+Arrive on August 19, 2026.
+
+MA-01 availability and delayed quantity
+
+Only 4 units of MA-01 are available for the standard schedule.
+
+Any MA-01 quantity above 4 requires a 30-day restocking period.
+
+For an order placed on August 5, additional MA-01 units are estimated to ship on September 4, 2026 and arrive on September 11, 2026.
+
+The USD 85 freight rule is applied per purchase order. The delayed MA-01 portion does not create a second order charge by itself.
+
+Please use the model codes in the attachment as the product-matching keys when comparing this quotation with other suppliers.
+
+Best regards,
+
+Hao Chen
+BrightPro Trading Co.

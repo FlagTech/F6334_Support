@@ -1,0 +1,4 @@
+interface:
+  display_name: "目標行動規劃器"
+  short_description: "把有期限的目標拆成清楚的階段、每週重點、每日行動與每週檢查"
+  default_prompt: "使用 $goal-action-planner，把我的目標與期限拆成簡短、具體的階段、每週重點、每日行動與每週檢查。"

@@ -1,0 +1,13 @@
+interface:
+  display_name: "建立 Google Workspace 專案起始包"
+  short_description: "建立完整的立案單、任務追蹤表、集中資料夾與日曆里程碑"
+  default_prompt: "使用 $create-google-workspace-project-starter 建立一套新的 Google Workspace 專案起始包。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "google-drive"
+      description: "建立、複製、編輯及整理 Google Drive、Docs 與 Sheets 檔案"
+    - type: "mcp"
+      value: "google-calendar"
+      description: "建立並核對 Google Calendar 專案里程碑"

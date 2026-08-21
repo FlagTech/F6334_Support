@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>四象限任務板</title>
+  <style>
+    :root {
+      --ink: #173142;
+      --ink-soft: #4d626d;
+      --paper: #f7f4ee;
+      --panel: #fffdf9;
+      --line: #dcd8cf;
+      --shadow: 0 18px 48px rgba(33, 49, 54, .08);
+      --q1: #d97568; --q1-soft: #f8e7e2;
+      --q2: #5f7f9f; --q2-soft: #e8eff5;
+      --q3: #c19243; --q3-soft: #f7edd7;
+      --q4: #74887a; --q4-soft: #e9eee9;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(217,117,104,.08), transparent 27rem),
+        radial-gradient(circle at 92% 8%, rgba(95,127,159,.09), transparent 30rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button, select, input[type="checkbox"] { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(38,107,128,.3); outline-offset: 2px;
+    }
+    .app-shell { width: min(1480px, calc(100% - 40px)); margin: auto; padding: 48px 0 36px; }
+    .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; padding: 10px 4px 30px; }
+    .kicker, .section-eyebrow { margin: 0 0 9px; color: #6c7f86; font-size: .7rem; font-weight: 760; letter-spacing: .17em; }
+    .hero h1 { margin: 0; font-size: clamp(2.55rem,5vw,5.25rem); font-weight: 780; letter-spacing: -.055em; line-height: .98; }
+    .hero-subtitle { margin: 18px 0 0; color: var(--ink-soft); font-size: clamp(1rem,1.7vw,1.3rem); letter-spacing: .03em; }
+    .hero-stats {
+      display: grid; grid-template-columns: auto auto; gap: 8px 26px; min-width: 300px; padding: 20px 22px;
+      border: 1px solid rgba(23,49,66,.12); border-radius: 22px; background: rgba(255,253,249,.72);
+      box-shadow: 0 12px 30px rgba(23,49,66,.05); backdrop-filter: blur(12px);
+    }
+    .primary-stat { display: flex; align-items: flex-end; gap: 8px; }
+    .primary-stat span { font-size: 2.5rem; font-weight: 760; line-height: 1; }
+    .primary-stat small { padding-bottom: 4px; color: var(--ink-soft); font-size: .82rem; }
+    .secondary-stat { display: flex; flex-direction: column; justify-content: center; padding-left: 24px; border-left: 1px solid var(--line); }
+    .secondary-stat strong { font-size: 1.25rem; line-height: 1; }
+    .secondary-stat span { margin-top: 4px; color: var(--ink-soft); font-size: .72rem; }
+    .local-badge { grid-column: 1/-1; display: flex; align-items: center; gap: 8px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .76rem; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4f8e6f; box-shadow: 0 0 0 4px rgba(79,142,111,.12); }
+    .action-panel { margin-bottom: 28px; padding: 25px; border: 1px solid rgba(23,49,66,.12); border-radius: 24px; background: rgba(255,253,249,.9); box-shadow: var(--shadow); }
+    .section-heading, .board-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+    .section-heading { margin-bottom: 20px; }
+    .section-heading h2, .modal-heading h2 { margin: 0; font-size: 1.35rem; letter-spacing: -.025em; }
+    .section-heading > p, .modal-heading p { margin: 0; color: var(--ink-soft); font-size: .82rem; }
+    .add-form { display: grid; grid-template-columns: minmax(250px,2.2fr) minmax(190px,1.2fr) repeat(3,minmax(110px,.8fr)) auto; gap: 12px; align-items: end; }
+    .field { display: flex; min-width: 0; flex-direction: column; gap: 7px; }
+    .field > span { color: var(--ink-soft); font-size: .72rem; font-weight: 700; }
+    .field input, .field select {
+      width: 100%; min-height: 46px; border: 1px solid #d5d6d1; border-radius: 12px; background: #fff;
+      color: var(--ink); padding: 0 12px; transition: border-color .16s, box-shadow .16s;
+    }
+    .field input:hover, .field select:hover { border-color: #b7bcb9; }
+    .field input:focus, .field select:focus { border-color: #6e8a94; box-shadow: 0 0 0 3px rgba(110,138,148,.12); outline: none; }
+    .primary-button, .secondary-button {
+      min-height: 44px; border-radius: 12px; padding: 0 16px; font-weight: 720; transition: transform .15s, background .15s;
+    }
+    .primary-button { border: 1px solid var(--ink); background: var(--ink); color: #fff; }
+    .primary-button:hover { background: #24495d; transform: translateY(-1px); }
+    .secondary-button { border: 1px solid #cfd2cd; background: #fffdfa; color: var(--ink); }
+    .secondary-button:hover { background: #f2f0eb; }
+    .add-button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; white-space: nowrap; }
+    .board-toolbar { align-items: center; margin: 0 3px 14px; }
+    .toolbar-copy { display: flex; align-items: baseline; gap: 13px; }
+    .toolbar-copy span { color: var(--ink-soft); font-size: .78rem; }
+    .toolbar-actions { display: flex; align-items: center; gap: 9px; }
+    .toolbar-actions .secondary-button { min-height: 38px; padding: 0 12px; font-size: .78rem; }
+    .include-completed { display: flex; align-items: center; gap: 7px; color: var(--ink-soft); font-size: .75rem; }
+    .include-completed input { width: 16px; height: 16px; accent-color: var(--ink); }
+    .quadrant-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; }
+    .quadrant { --accent: var(--q1); --soft: var(--q1-soft); min-width: 0; overflow: hidden; border: 1px solid rgba(23,49,66,.12); border-radius: 22px; background: rgba(255,253,249,.93); box-shadow: var(--shadow); }
+    .quadrant-q2 { --accent: var(--q2); --soft: var(--q2-soft); }
+    .quadrant-q3 { --accent: var(--q3); --soft: var(--q3-soft); }
+    .quadrant-q4 { --accent: var(--q4); --soft: var(--q4-soft); }
+    .quadrant-header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 19px 20px; border-bottom: 1px solid rgba(23,49,66,.09); background: var(--soft); }
+    .quadrant-number { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: var(--accent); color: white; font-size: 1.1rem; font-weight: 800; }
+    .quadrant-title p { margin: 0 0 2px; color: var(--accent); font-size: .62rem; font-weight: 800; letter-spacing: .15em; }
+    .quadrant-title h2 { margin: 0; font-size: 1.02rem; }
+    .quadrant-meta { text-align: right; }
+    .quadrant-meta strong { display: block; font-size: 1.35rem; line-height: 1; }
+    .quadrant-meta span { color: var(--ink-soft); font-size: .67rem; }
+    .task-list { min-height: 210px; padding: 13px; }
+    .empty-state { display: flex; width: 100%; min-height: 182px; align-items: center; justify-content: center; flex-direction: column; gap: 8px; border: 1px dashed #cfd2cd; border-radius: 15px; background: transparent; color: var(--ink-soft); padding: 24px; }
+    .empty-state > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--soft); color: var(--accent); font-size: 1.35rem; }
+    .empty-state strong { font-size: .83rem; font-weight: 650; text-align: center; }
+    .empty-state small { opacity: .75; }
+    .task-card { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: center; gap: 10px; margin-bottom: 9px; padding: 12px; border: 1px solid #e0e0db; border-radius: 14px; background: #fff; transition: border-color .15s, transform .15s, opacity .15s; }
+    .task-card:last-child { margin-bottom: 0; }
+    .task-card:hover { border-color: #c2c8c5; transform: translateY(-1px); }
+    .task-card.is-complete { opacity: .58; background: #f5f4f0; }
+    .task-card.is-complete .task-content p { text-decoration: line-through; }
+    .task-check input { position: absolute; opacity: 0; pointer-events: none; }
+    .task-check > span:first-of-type { display: block; width: 21px; height: 21px; border: 1.5px solid #aeb6b3; border-radius: 7px; background: white; }
+    .task-check input:checked + span { display: grid; place-items: center; border-color: var(--accent); background: var(--accent); }
+    .task-check input:checked + span::after { content: "✓"; color: white; font-size: .75rem; font-weight: 800; }
+    .task-content { min-width: 0; }
+    .task-content p { margin: 0; overflow-wrap: anywhere; font-size: .88rem; font-weight: 650; }
+    .task-details { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; color: var(--ink-soft); font-size: .68rem; }
+    .move-control select { min-height: 34px; border: 1px solid #d5d6d1; border-radius: 9px; background: #faf9f6; color: var(--ink-soft); padding: 0 7px; font-size: .7rem; }
+    .delete-button, .modal-close { display: grid; place-items: center; border: 0; background: transparent; color: #869197; }
+    .delete-button { width: 30px; height: 30px; border-radius: 9px; font-size: 1.15rem; }
+    .delete-button:hover, .modal-close:hover { background: #f8e7e2; color: #a44f45; }
+    footer { display: flex; justify-content: space-between; gap: 20px; padding: 20px 5px 0; color: var(--ink-soft); font-size: .7rem; }
+    footer p { margin: 0; }
+    .notice { position: fixed; z-index: 30; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 12px; max-width: min(440px,calc(100% - 30px)); border-radius: 13px; background: #173142; color: white; padding: 0; box-shadow: 0 16px 40px rgba(23,49,66,.25); font-size: .8rem; overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(12px); transition: .2s; }
+    .notice.is-visible { padding: 12px 15px; opacity: 1; pointer-events: auto; transform: none; }
+    .notice button { border: 0; border-radius: 7px; background: white; color: var(--ink); padding: 5px 9px; font-size: .72rem; font-weight: 750; }
+    .modal-backdrop { position: fixed; z-index: 40; inset: 0; display: grid; place-items: center; background: rgba(13,29,38,.55); padding: 20px; backdrop-filter: blur(5px); }
+    .modal-backdrop[hidden] { display: none; }
+    .import-modal { width: min(680px,100%); max-height: min(720px,calc(100vh - 40px)); overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 28px 80px rgba(10,24,31,.3); }
+    .modal-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 21px 22px; border-bottom: 1px solid var(--line); }
+    .modal-heading p:not(.section-eyebrow) { margin-top: 7px; }
+    .modal-close { flex: 0 0 auto; width: 35px; height: 35px; border-radius: 10px; font-size: 1.3rem; }
+    .import-list { max-height: 440px; overflow: auto; padding: 13px 17px; }
+    .import-row { display: grid; grid-template-columns: auto minmax(0,1fr) minmax(150px,.45fr); align-items: center; gap: 11px; margin-bottom: 8px; padding: 11px; border: 1px solid #e2e2dd; border-radius: 13px; background: white; }
+    .import-row.is-duplicate { background: #f1f1ee; opacity: .75; }
+    .import-select input { width: 18px; height: 18px; accent-color: var(--ink); }
+    .import-task-copy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+    .import-task-copy strong { overflow-wrap: anywhere; font-size: .84rem; }
+    .import-task-copy span, .import-task-copy em { color: var(--ink-soft); font-size: .69rem; font-style: normal; }
+    .import-task-copy em { color: #a05247; }
+    .import-quadrant select { width: 100%; min-height: 38px; border: 1px solid #d3d5d0; border-radius: 10px; background: white; color: var(--ink); padding: 0 9px; font-size: .74rem; }
+    .modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 15px 20px; border-top: 1px solid var(--line); background: #f6f4ef; }
+    .modal-actions > span { margin-right: auto; color: var(--ink-soft); font-size: .76rem; }
+    .visually-hidden { position: absolute!important; width: 1px!important; height: 1px!important; overflow: hidden!important; clip: rect(0 0 0 0)!important; clip-path: inset(50%)!important; white-space: nowrap!important; }
+    @media (max-width:1120px) {
+      .add-form { grid-template-columns: minmax(220px,2fr) minmax(180px,1fr) repeat(3,minmax(100px,.75fr)); }
+      .add-button { grid-column: 1/-1; }
+    }
+    @media (max-width:820px) {
+      .app-shell { width: min(100% - 26px,680px); padding-top: 25px; }
+      .hero { align-items: stretch; flex-direction: column; gap: 24px; }
+      .hero-stats { min-width: 0; }
+      .section-heading, .board-toolbar { align-items: flex-start; flex-direction: column; }
+      .section-heading > p { display: none; }
+      .add-form { grid-template-columns: 1fr 1fr; }
+      .field-title { grid-column: 1/-1; }
+      .quadrant-grid { grid-template-columns: 1fr; }
+      .toolbar-actions { width: 100%; flex-wrap: wrap; }
+      .include-completed { margin-left: auto; }
+    }
+    @media (max-width:560px) {
+      .app-shell { width: min(100% - 20px,520px); }
+      .hero h1 { font-size: 2.65rem; }
+      .action-panel { padding: 19px 16px; }
+      .add-form { grid-template-columns: 1fr; }
+      .field-title, .add-button { grid-column: auto; }
+      .toolbar-copy { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .toolbar-actions { display: grid; grid-template-columns: 1fr 1fr; }
+      .include-completed { grid-column: 1/-1; grid-row: 2; margin: 2px 0 0; }
+      .quadrant-header { gap: 10px; padding: 16px 14px; }
+      .quadrant-meta span { display: none; }
+      .task-card { grid-template-columns: auto minmax(0,1fr) auto; }
+      .move-control { grid-column: 2; }
+      .delete-button { grid-column: 3; grid-row: 1; }
+      footer { flex-direction: column; gap: 6px; }
+      .import-row { grid-template-columns: auto minmax(0,1fr); }
+      .import-quadrant { grid-column: 2; }
+      .modal-actions { flex-wrap: wrap; }
+      .modal-actions > span { width: 100%; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; } }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="kicker">FOUR QUADRANT PLANNER</p>
+        <h1>四象限任務板</h1>
+        <p class="hero-subtitle">看清優先順序，專注下一步。</p>
+      </div>
+      <div class="hero-stats" aria-label="任務摘要">
+        <div class="primary-stat"><span id="open-count">0</span><small>項待辦</small></div>
+        <div class="secondary-stat"><strong id="completed-count">0</strong><span>項已完成</span></div>
+        <div class="local-badge"><span class="status-dot" aria-hidden="true"></span><span id="storage-label">僅儲存在此瀏覽器</span></div>
+      </div>
+    </header>
+
+    <section class="action-panel" aria-labelledby="add-task-heading">
+      <div class="section-heading">
+        <div><p class="section-eyebrow">QUICK ADD</p><h2 id="add-task-heading">新增下一件事</h2></div>
+        <p>可選填預定日期、時間與分鐘數。</p>
+      </div>
+      <form class="add-form" id="add-form">
+        <label class="field field-title"><span>任務名稱</span><input id="title" placeholder="例如：完成客戶提案" maxlength="120" autocomplete="off"></label>
+        <label class="field"><span>放入象限</span><select id="quadrant"></select></label>
+        <label class="field"><span>日期（選填）</span><input id="date" type="date"></label>
+        <label class="field"><span>開始時間（選填）</span><input id="start-time" type="time"></label>
+        <label class="field field-duration"><span>分鐘</span><input id="duration" type="number" min="1" max="1440" inputmode="numeric" placeholder="—"></label>
+        <button class="primary-button add-button" type="submit"><span aria-hidden="true">＋</span>加入任務</button>
+      </form>
+    </section>
+
+    <section class="board-toolbar" aria-label="任務匯入與匯出">
+      <div class="toolbar-copy"><strong>你的四象限</strong><span>先處理重要的，再決定其他的。</span></div>
+      <div class="toolbar-actions">
+        <input id="import-file" class="visually-hidden" type="file" accept=".txt,text/plain" aria-label="選擇要匯入的 TXT 檔案">
+        <button class="secondary-button" id="import-button" type="button"><span aria-hidden="true">↓</span> 匯入 TXT</button>
+        <label class="include-completed"><input id="include-completed" type="checkbox">包含已完成</label>
+        <button class="secondary-button" id="export-button" type="button"><span aria-hidden="true">↑</span> 匯出 TXT</button>
+      </div>
+    </section>
+
+    <section class="quadrant-grid" id="quadrant-grid" aria-label="四象限任務清單"></section>
+
+    <footer><p>資料只留在這個瀏覽器。換裝置前，記得先匯出 TXT。</p><span>Asia/Taipei · FOUR_QUADRANT_TASKS/1</span></footer>
+    <div class="notice" id="notice" aria-live="polite" aria-atomic="true"></div>
+    <div class="modal-backdrop" id="modal" role="presentation" hidden></div>
+  </main>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "four-quadrant-tasks:v1";
+    const STORAGE_VERSION = 1;
+    const FORMAT_HEADER = "FOUR_QUADRANT_TASKS/1";
+    const QUADRANTS = [
+      { id:"Q1", eyebrow:"DO FIRST", title:"重要且緊急", strategy:"現在處理", empty:"很棒，現在沒有燃眉之急。" },
+      { id:"Q2", eyebrow:"SCHEDULE", title:"重要但不緊急", strategy:"排入計畫", empty:"把能帶來長期成果的事放在這裡。" },
+      { id:"Q3", eyebrow:"DELEGATE", title:"不重要但緊急", strategy:"簡化或委派", empty:"暫時沒有需要快速回應的雜務。" },
+      { id:"Q4", eyebrow:"LIMIT", title:"不重要且不緊急", strategy:"有空再做", empty:"保留一些空白，也是一種安排。" }
+    ];
+
+    let tasks = [];
+    let importCandidates = null;
+    let undoState = null;
+    let undoTimer = null;
+    let noticeTimer = null;
+    let storageAvailable = true;
+
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const grid = $("#quadrant-grid");
+    const titleInput = $("#title");
+    const quadrantInput = $("#quadrant");
+    const dateInput = $("#date");
+    const timeInput = $("#start-time");
+    const durationInput = $("#duration");
+    const notice = $("#notice");
+    const modal = $("#modal");
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
+    }
+
+    function createId() {
+      return globalThis.crypto?.randomUUID?.() || `task-${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
+    }
+
+    function formatSchedule(task) {
+      const parts = [];
+      if (task.date) {
+        const [year, month, day] = task.date.split("-");
+        parts.push(year === String(new Date().getFullYear()) ? `${Number(month)}/${Number(day)}` : task.date);
+      }
+      if (task.startTime) parts.push(task.startTime);
+      if (task.durationMinutes) parts.push(`${task.durationMinutes} 分`);
+      return parts.join(" · ");
+    }
+
+    function sortTasks(list) {
+      return [...list].sort((a,b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        const aSchedule = `${a.date || "9999"}T${a.startTime || "99:99"}`;
+        const bSchedule = `${b.date || "9999"}T${b.startTime || "99:99"}`;
+        return aSchedule.localeCompare(bSchedule) || a.createdAt.localeCompare(b.createdAt);
+      });
+    }
+
+    function showNotice(message, withUndo = false) {
+      clearTimeout(noticeTimer);
+      notice.innerHTML = `<span>${escapeHTML(message)}</span>${withUndo ? '<button id="undo-button" type="button">復原</button>' : ""}`;
+      notice.classList.add("is-visible");
+      $("#undo-button")?.addEventListener("click", undoDelete);
+      noticeTimer = setTimeout(() => notice.classList.remove("is-visible"), withUndo ? 6500 : 3800);
+    }
+
+    function saveTasks() {
+      if (!storageAvailable) return;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({version:STORAGE_VERSION,tasks}));
+      } catch {
+        storageAvailable = false;
+        $("#storage-label").textContent = "本機儲存不可用，請記得匯出 TXT";
+        showNotice("瀏覽器未允許本機儲存，關閉前請先匯出 TXT。");
+      }
+    }
+
+    function loadTasks() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const value = JSON.parse(raw);
+        if (value?.version !== STORAGE_VERSION || !Array.isArray(value.tasks)) throw new Error();
+        tasks = value.tasks.map(task => normalizeTask(task,"manual"));
+      } catch {
+        tasks = [];
+        showNotice("本機資料無法讀取，已安全開啟空白任務板。");
+      }
+    }
+
+    function render() {
+      $("#open-count").textContent = tasks.filter(task => !task.completed).length;
+      $("#completed-count").textContent = tasks.filter(task => task.completed).length;
+      grid.innerHTML = QUADRANTS.map(item => {
+        const list = sortTasks(tasks.filter(task => task.quadrant === item.id));
+        const open = list.filter(task => !task.completed).length;
+        const taskHTML = list.length ? list.map(task => {
+          const schedule = formatSchedule(task);
+          return `<div class="task-card${task.completed ? " is-complete" : ""}" data-id="${escapeHTML(task.id)}">
+            <label class="task-check"><input type="checkbox" data-action="toggle" ${task.completed ? "checked" : ""}><span aria-hidden="true"></span><span class="visually-hidden">切換「${escapeHTML(task.title)}」完成狀態</span></label>
+            <div class="task-content"><p>${escapeHTML(task.title)}</p><div class="task-details">
+              ${schedule ? `<span>${escapeHTML(schedule)}</span>` : ""}
+            </div></div>
+            <label class="move-control"><span class="visually-hidden">移動「${escapeHTML(task.title)}」到其他象限</span><select data-action="move" aria-label="移動到其他象限">${QUADRANTS.map(target => `<option value="${target.id}" ${target.id === task.quadrant ? "selected" : ""}>${target.id}</option>`).join("")}</select></label>
+            <button class="delete-button" data-action="delete" type="button" aria-label="刪除「${escapeHTML(task.title)}」">×</button>
+          </div>`;
+        }).join("") : `<button class="empty-state" type="button" data-empty="${item.id}"><span aria-hidden="true">＋</span><strong>${item.empty}</strong><small>點一下新增任務</small></button>`;
+        return `<article class="quadrant quadrant-${item.id.toLowerCase()}" aria-labelledby="heading-${item.id}">
+          <div class="quadrant-header"><div class="quadrant-number">${item.id.slice(1)}</div><div class="quadrant-title"><p>${item.eyebrow}</p><h2 id="heading-${item.id}">${item.title}</h2></div><div class="quadrant-meta"><strong>${open}</strong><span>${item.strategy}</span></div></div>
+          <div class="task-list">${taskHTML}</div>
+        </article>`;
+      }).join("");
+    }
+
+    function commit(message) {
+      saveTasks();
+      render();
+      if (message) showNotice(message);
+    }
+
+    function addTask(event) {
+      event.preventDefault();
+      const title = titleInput.value.trim();
+      if (!title) { showNotice("請先輸入任務名稱。"); titleInput.focus(); return; }
+      const hasSchedule = Boolean(dateInput.value && timeInput.value);
+      const minutes = durationInput.value ? Number(durationInput.value) : hasSchedule ? 30 : undefined;
+      tasks.push({
+        id:createId(), title, quadrant:quadrantInput.value, completed:false,
+        date:dateInput.value || undefined, startTime:timeInput.value || undefined,
+        durationMinutes:Number.isInteger(minutes) && minutes > 0 ? minutes : undefined,
+        createdAt:new Date().toISOString(), source:"manual"
+      });
+      titleInput.value = ""; dateInput.value = ""; timeInput.value = ""; durationInput.value = ""; durationInput.placeholder = "—";
+      commit(`已加入「${title}」。`);
+      titleInput.focus();
+    }
+
+    function undoDelete() {
+      if (!undoState) return;
+      tasks.splice(Math.min(undoState.index,tasks.length),0,undoState.task);
+      const title = undoState.task.title;
+      undoState = null;
+      clearTimeout(undoTimer);
+      commit(`已復原「${title}」。`);
+    }
+
+    function handleGridClick(event) {
+      const empty = event.target.closest("[data-empty]");
+      if (empty) { quadrantInput.value = empty.dataset.empty; titleInput.focus(); return; }
+      const button = event.target.closest("[data-action='delete']");
+      if (!button) return;
+      const card = button.closest(".task-card");
+      const index = tasks.findIndex(task => task.id === card.dataset.id);
+      if (index < 0) return;
+      const [task] = tasks.splice(index,1);
+      undoState = {task,index};
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => { undoState = null; },6500);
+      saveTasks(); render(); showNotice(`已刪除「${task.title}」。`,true);
+    }
+
+    function handleGridChange(event) {
+      const action = event.target.dataset.action;
+      if (!action) return;
+      const id = event.target.closest(".task-card").dataset.id;
+      const task = tasks.find(item => item.id === id);
+      if (!task) return;
+      if (action === "toggle") task.completed = event.target.checked;
+      if (action === "move") {
+        task.quadrant = event.target.value;
+        const name = QUADRANTS.find(item => item.id === task.quadrant)?.title;
+        showNotice(`任務已移到「${name}」。`);
+      }
+      saveTasks(); render();
+    }
+
+    function optionalString(value, field) {
+      if (value === undefined || value === null || value === "") return undefined;
+      if (typeof value !== "string") throw new Error(`${field} 必須是文字`);
+      return value;
+    }
+
+    function normalizeTask(raw, fallbackSource = "txt") {
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("任務資料格式不正確");
+      if (typeof raw.id !== "string" || !raw.id.trim()) throw new Error("任務缺少 ID");
+      if (typeof raw.title !== "string" || !raw.title.trim()) throw new Error("任務缺少標題");
+      if (!QUADRANTS.some(item => item.id === raw.quadrant)) throw new Error(`任務「${raw.title}」的象限格式不正確`);
+      const completed = raw.completed ?? false;
+      if (typeof completed !== "boolean") throw new Error(`任務「${raw.title}」的完成狀態不正確`);
+      const duration = raw.durationMinutes;
+      if (duration != null && (!Number.isInteger(duration) || duration <= 0)) throw new Error(`任務「${raw.title}」的分鐘數必須是正整數`);
+      const source = raw.source === "txt" ? "txt" : fallbackSource === "txt" ? "txt" : "manual";
+      return {
+        id:raw.id.trim(), title:raw.title.trim(), quadrant:raw.quadrant, completed,
+        date:optionalString(raw.date,"日期"), startTime:optionalString(raw.startTime,"開始時間"),
+        durationMinutes:duration ?? undefined, createdAt:optionalString(raw.createdAt,"建立時間") || new Date().toISOString(),
+        source
+      };
+    }
+
+    function parseBlock(lines, number) {
+      const fields = {};
+      for (const line of lines) {
+        const separator = line.indexOf(":");
+        if (separator < 1) throw new Error(`第 ${number} 筆任務有無法辨識的欄位`);
+        const key = line.slice(0,separator).trim();
+        const rawValue = line.slice(separator+1).trim();
+        if (!rawValue) throw new Error(`第 ${number} 筆任務的 ${key} 是空白`);
+        try { fields[key] = JSON.parse(rawValue); } catch { throw new Error(`第 ${number} 筆任務的 ${key} 格式不正確`); }
+      }
+      return normalizeTask({id:fields.ID,title:fields.TITLE,quadrant:fields.QUADRANT,completed:fields.COMPLETED,date:fields.DATE,startTime:fields.START,durationMinutes:fields.DURATION_MINUTES,createdAt:fields.CREATED_AT,source:fields.SOURCE},"txt");
+    }
+
+    function parseTaskText(text) {
+      const lines = text.replace(/^\uFEFF/,"").replace(/\r\n?/g,"\n").split("\n");
+      if (lines[0]?.trim() !== FORMAT_HEADER) throw new Error(`檔案版本不正確，第一行必須是 ${FORMAT_HEADER}`);
+      const parsed = [];
+      let block = null;
+      for (let i=1;i<lines.length;i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        if (line === "TASK") { if (block) throw new Error("上一筆任務缺少 END"); block=[]; continue; }
+        if (line === "END") { if (!block) throw new Error("遇到多餘的 END"); parsed.push(parseBlock(block,parsed.length+1)); block=null; continue; }
+        if (block) block.push(line);
+      }
+      if (block) throw new Error("最後一筆任務缺少 END");
+      if (!parsed.length) throw new Error("TXT 中沒有可匯入的任務");
+      const ids = new Set();
+      for (const task of parsed) { if (ids.has(task.id)) throw new Error(`任務 ID 重複：${task.id}`); ids.add(task.id); }
+      return parsed;
+    }
+
+    function duplicateReason(candidate) {
+      if (tasks.some(task => task.id === candidate.id)) return "相同任務已存在";
+      return "";
+    }
+
+    async function readImportFile(event) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      if (file.size > 1024*1024) { showNotice("TXT 檔案超過 1 MB，請縮小後再匯入。"); return; }
+      try {
+        const parsed = parseTaskText(await file.text());
+        importCandidates = parsed.map(task => { const duplicate=duplicateReason(task); return {task,duplicate,selected:!duplicate}; });
+        renderImportModal();
+        showNotice(`已讀取 ${importCandidates.length} 筆，請先確認象限與要匯入的項目。`);
+      } catch (error) { showNotice(`無法匯入：${error.message || "TXT 格式錯誤"}`); }
+    }
+
+    function renderImportModal() {
+      if (!importCandidates) { modal.hidden=true; modal.innerHTML=""; return; }
+      const count = importCandidates.filter(item => item.selected && !item.duplicate).length;
+      modal.innerHTML = `<section class="import-modal" role="dialog" aria-modal="true" aria-labelledby="import-heading">
+        <div class="modal-heading"><div><p class="section-eyebrow">IMPORT PREVIEW</p><h2 id="import-heading">確認要加入的任務</h2><p>可取消項目或修正象限；重複的任務不會再次加入。</p></div><button class="modal-close" type="button" data-modal="close" aria-label="關閉匯入預覽">×</button></div>
+        <div class="import-list">${importCandidates.map((candidate,index) => `<div class="import-row${candidate.duplicate ? " is-duplicate" : ""}">
+          <label class="import-select"><input type="checkbox" data-candidate-select="${index}" ${candidate.selected ? "checked" : ""} ${candidate.duplicate ? "disabled" : ""}><span class="visually-hidden">匯入「${escapeHTML(candidate.task.title)}」</span></label>
+          <div class="import-task-copy"><strong>${escapeHTML(candidate.task.title)}</strong><span>${escapeHTML(formatSchedule(candidate.task) || "未設定日期與時間")}</span>${candidate.duplicate ? `<em>${escapeHTML(candidate.duplicate)}</em>` : ""}</div>
+          <label class="import-quadrant"><span class="visually-hidden">「${escapeHTML(candidate.task.title)}」的象限</span><select data-candidate-quadrant="${index}" ${candidate.duplicate ? "disabled" : ""}>${QUADRANTS.map(target => `<option value="${target.id}" ${target.id === candidate.task.quadrant ? "selected" : ""}>${target.id} · ${target.title}</option>`).join("")}</select></label>
+        </div>`).join("")}</div>
+        <div class="modal-actions"><span>${count} 筆將被加入</span><button class="secondary-button" type="button" data-modal="close">取消</button><button class="primary-button" type="button" data-modal="confirm">確認匯入</button></div>
+      </section>`;
+      modal.hidden=false;
+      $(".modal-close",modal)?.focus();
+    }
+
+    function handleModalChange(event) {
+      if (event.target.dataset.candidateSelect !== undefined) importCandidates[Number(event.target.dataset.candidateSelect)].selected = event.target.checked;
+      if (event.target.dataset.candidateQuadrant !== undefined) importCandidates[Number(event.target.dataset.candidateQuadrant)].task.quadrant = event.target.value;
+      renderImportModal();
+    }
+
+    function handleModalClick(event) {
+      const action = event.target.closest("[data-modal]")?.dataset.modal;
+      if (!action) return;
+      if (action === "close") { importCandidates=null; renderImportModal(); return; }
+      const selected = importCandidates.filter(item => item.selected && !item.duplicate).map(item => item.task);
+      if (!selected.length) { showNotice("沒有選取可匯入的任務。"); return; }
+      tasks.push(...selected); importCandidates=null; renderImportModal(); commit(`已匯入 ${selected.length} 筆任務。`);
+    }
+
+    function serializeTasks(includeCompleted) {
+      const selected = includeCompleted ? tasks : tasks.filter(task => !task.completed);
+      const lines = [FORMAT_HEADER,"TIMEZONE: Asia/Taipei",`EXPORTED_AT: ${new Date().toISOString()}`,""];
+      for (const raw of selected) {
+        const task = normalizeTask(raw,"manual");
+        lines.push("TASK",`ID: ${JSON.stringify(task.id)}`,`TITLE: ${JSON.stringify(task.title)}`,`QUADRANT: ${JSON.stringify(task.quadrant)}`,`COMPLETED: ${JSON.stringify(task.completed)}`);
+        if (task.date) lines.push(`DATE: ${JSON.stringify(task.date)}`);
+        if (task.startTime) lines.push(`START: ${JSON.stringify(task.startTime)}`);
+        if (task.durationMinutes) lines.push(`DURATION_MINUTES: ${task.durationMinutes}`);
+        lines.push(`CREATED_AT: ${JSON.stringify(task.createdAt)}`,`SOURCE: ${JSON.stringify(task.source)}`);
+        lines.push("END","");
+      }
+      return lines.join("\n");
+    }
+
+    function exportTasks() {
+      const includeCompleted = $("#include-completed").checked;
+      const selected = includeCompleted ? tasks : tasks.filter(task => !task.completed);
+      if (!selected.length) { showNotice("目前沒有可匯出的任務。"); return; }
+      const blob = new Blob(["\uFEFF"+serializeTasks(includeCompleted)],{type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href=url; anchor.download=`四象限任務-${new Date().toISOString().slice(0,10)}.txt`; document.body.appendChild(anchor); anchor.click(); anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url),0);
+      showNotice(`已匯出 ${selected.length} 筆任務備份。`);
+    }
+
+    quadrantInput.innerHTML = QUADRANTS.map(item => `<option value="${item.id}">${item.id} · ${item.title}</option>`).join("");
+    $("#add-form").addEventListener("submit",addTask);
+    dateInput.addEventListener("change",() => { durationInput.placeholder = dateInput.value && timeInput.value ? "30" : "—"; });
+    timeInput.addEventListener("change",() => { durationInput.placeholder = dateInput.value && timeInput.value ? "30" : "—"; });
+    grid.addEventListener("click",handleGridClick);
+    grid.addEventListener("change",handleGridChange);
+    $("#import-button").addEventListener("click",() => $("#import-file").click());
+    $("#import-file").addEventListener("change",readImportFile);
+    $("#export-button").addEventListener("click",exportTasks);
+    modal.addEventListener("click",handleModalClick);
+    modal.addEventListener("change",handleModalChange);
+    document.addEventListener("keydown",event => { if (event.key === "Escape" && importCandidates) { importCandidates=null; renderImportModal(); } });
+    loadTasks();
+    render();
+  </script>
+</body>
+</html>

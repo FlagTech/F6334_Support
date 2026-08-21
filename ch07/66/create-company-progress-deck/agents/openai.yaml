@@ -1,0 +1,4 @@
+interface:
+  display_name: "公司進度簡報"
+  short_description: "先審大綱，再製作極簡團隊週報或月報 PowerPoint"
+  default_prompt: "使用 $create-company-progress-deck，將這些進度筆記整理成可審閱的繁體中文 Markdown 大綱。"

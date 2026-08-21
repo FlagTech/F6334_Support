@@ -1,0 +1,4 @@
+interface:
+  display_name: "結構化會議記錄"
+  short_description: "將原始會議筆記整理成可追蹤的標準記錄，另存為 Markdown 並輸出檔案"
+  default_prompt: "使用 $structure-meeting-notes，將以下會議筆記整理成標準記錄，另存為新的 Markdown 檔並輸出。"

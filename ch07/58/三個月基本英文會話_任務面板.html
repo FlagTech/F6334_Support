@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3d7a6b" />
+  <title>三個月基本英文會話｜任務面板</title>
+  <style>
+    :root {
+      --ink: #1d2a28;
+      --muted: #667572;
+      --paper: #f7faf7;
+      --card: #ffffff;
+      --line: #dce7e2;
+      --primary: #3d7a6b;
+      --primary-soft: #e4f1ed;
+      --accent: #ef9e5c;
+      --shadow: 0 10px 30px rgba(31, 69, 59, .08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: linear-gradient(135deg, #eff8f4 0%, var(--paper) 45%, #fff7ed 100%);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+
+    .container { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    .hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 24px; }
+    .eyebrow { margin: 0 0 8px; color: var(--primary); font-size: .86rem; font-weight: 800; letter-spacing: .08em; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.2; }
+    .subtitle { margin: 10px 0 0; color: var(--muted); line-height: 1.7; }
+    .week-tag { flex: none; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.74); color: var(--primary); font-size: .9rem; font-weight: 700; }
+
+    .progress-panel { padding: 22px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow); margin-bottom: 24px; }
+    .progress-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .progress-title { font-weight: 800; }
+    .percentage { color: var(--primary); font-size: 1.75rem; font-weight: 900; }
+    .progress-track { height: 12px; overflow: hidden; border-radius: 999px; background: #e8efec; margin: 14px 0 11px; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--primary), #62a78f); transition: width .28s ease; }
+    .progress-note { margin: 0; color: var(--muted); font-size: .92rem; }
+
+    .day-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+    .day-button { padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.78); font: inherit; font-size: .88rem; cursor: pointer; }
+    .day-button:hover, .day-button.active { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); font-weight: 800; }
+    .task-grid { max-width: 620px; }
+    .day-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: 0 4px 16px rgba(31, 69, 59, .04); }
+    .day-heading { display: flex; justify-content: space-between; align-items: center; padding: 15px 17px; border-bottom: 1px solid var(--line); background: #fbfdfc; }
+    .day-heading h2 { margin: 0; font-size: 1.05rem; }
+    .duration { color: var(--primary); font-size: .8rem; font-weight: 800; }
+    .task-list { margin: 0; padding: 4px 10px 10px; list-style: none; }
+    .task-item { border-bottom: 1px solid #edf2ef; }
+    .task-item:last-child { border-bottom: 0; }
+    .task-label { display: flex; gap: 12px; align-items: flex-start; padding: 14px 7px; cursor: pointer; line-height: 1.5; }
+    .task-label:hover { background: #f8fbf9; }
+    input[type="checkbox"] { appearance: none; flex: 0 0 21px; width: 21px; height: 21px; margin: 1px 0 0; border: 2px solid #afc7be; border-radius: 7px; background: #fff; cursor: pointer; }
+    input[type="checkbox"]:checked { border-color: var(--primary); background: var(--primary); box-shadow: inset 0 0 0 4px #fff; }
+    .task-text { font-size: .94rem; }
+    .task-text small { display: block; margin-top: 3px; color: var(--muted); font-size: .82rem; }
+    .task-item.done .task-text { color: #85928e; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+    .commute { background: #fffaf5; }
+    .commute .day-heading { background: #fff7ef; }
+
+    .footer { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-top: 24px; color: var(--muted); font-size: .86rem; }
+    .reset-button { padding: 9px 12px; border: 1px solid #d5e2dc; border-radius: 10px; color: #48665e; background: #fff; font: inherit; cursor: pointer; }
+    .reset-button:hover { border-color: var(--primary); color: var(--primary); }
+    .celebration { min-height: 24px; margin: 18px 0 -2px; color: var(--primary); font-weight: 800; text-align: center; }
+    .next-day { display: block; width: min(100%, 620px); margin: 16px 0 0; padding: 13px 18px; border: 0; border-radius: 12px; color: #fff; background: var(--primary); font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 6px 14px rgba(61,122,107,.2); }
+    .next-day:hover { background: #2f6658; }
+
+    @media (max-width: 650px) {
+      .container { width: min(100% - 24px, 560px); padding-top: 22px; }
+      .hero { gap: 12px; }
+      .week-tag { font-size: .78rem; padding: 7px 9px; }
+      .progress-panel { padding: 18px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">ENGLISH CONVERSATION PLAN</p>
+        <h1>三個月基本英文會話</h1>
+        <p class="subtitle">第 1 週：自我介紹、家庭、工作與興趣</p>
+      </div>
+      <span class="week-tag">本週 5 天</span>
+    </header>
+
+    <section class="progress-panel" aria-label="本週進度">
+      <div class="progress-top">
+        <span class="progress-title">本週完成進度</span>
+        <span class="percentage" id="percentage">0%</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="progress-note" id="progressNote">完成 0 / 10 項練習</p>
+    </section>
+
+    <nav class="day-navigation" id="dayNavigation" aria-label="已解鎖日期"></nav>
+    <section class="task-grid" aria-label="每日練習任務">
+      <article class="day-card" data-day="mon" data-title="週一"><div class="day-heading"><h2>週一</h2><span class="duration">40 分鐘</span></div><ul class="task-list">
+        <li class="task-item"><label class="task-label"><input data-task="mon-main" type="checkbox"><span class="task-text">學 10 句自我介紹句型<small>與 AI 口說練習</small></span></label></li>
+        <li class="task-item commute"><label class="task-label"><input data-task="mon-commute" type="checkbox"><span class="task-text">通勤聽慢速英文 20 分鐘<small>挑 3 句在心中跟讀</small></span></label></li>
+      </ul></article>
+      <article class="day-card" data-day="tue" data-title="週二"><div class="day-heading"><h2>週二</h2><span class="duration">40 分鐘</span></div><ul class="task-list">
+        <li class="task-item"><label class="task-label"><input data-task="tue-main" type="checkbox"><span class="task-text">練 10 組生活問答<small>姓名、居住地、工作、興趣；錄音</small></span></label></li>
+        <li class="task-item commute"><label class="task-label"><input data-task="tue-commute" type="checkbox"><span class="task-text">通勤聽慢速英文 20 分鐘<small>挑 3 句在心中跟讀</small></span></label></li>
+      </ul></article>
+      <article class="day-card" data-day="wed" data-title="週三"><div class="day-heading"><h2>週三</h2><span class="duration">40 分鐘</span></div><ul class="task-list">
+        <li class="task-item"><label class="task-label"><input data-task="wed-main" type="checkbox"><span class="task-text">跟讀 8 句生活英文<small>模仿語調後，和 AI 對話</small></span></label></li>
+        <li class="task-item commute"><label class="task-label"><input data-task="wed-commute" type="checkbox"><span class="task-text">通勤聽慢速英文 20 分鐘<small>挑 3 句在心中跟讀</small></span></label></li>
+      </ul></article>
+      <article class="day-card" data-day="thu" data-title="週四"><div class="day-heading"><h2>週四</h2><span class="duration">40 分鐘</span></div><ul class="task-list">
+        <li class="task-item"><label class="task-label"><input data-task="thu-main" type="checkbox"><span class="task-text">完成 1 分鐘自我介紹<small>請 AI 修正文法與自然說法</small></span></label></li>
+        <li class="task-item commute"><label class="task-label"><input data-task="thu-commute" type="checkbox"><span class="task-text">通勤聽慢速英文 20 分鐘<small>挑 3 句在心中跟讀</small></span></label></li>
+      </ul></article>
+      <article class="day-card" data-day="fri" data-title="週五"><div class="day-heading"><h2>週五</h2><span class="duration">40 分鐘</span></div><ul class="task-list">
+        <li class="task-item"><label class="task-label"><input data-task="fri-main" type="checkbox"><span class="task-text">不看筆記進行 5 分鐘 AI 對話<small>整理 5 個卡住的句子</small></span></label></li>
+        <li class="task-item commute"><label class="task-label"><input data-task="fri-commute" type="checkbox"><span class="task-text">通勤聽慢速英文 20 分鐘<small>挑 3 句在心中跟讀</small></span></label></li>
+      </ul></article>
+    </section>
+    <button class="next-day" id="nextDayButton" type="button" hidden></button>
+    <p class="celebration" id="celebration" aria-live="polite"></p>
+    <footer class="footer"><span>勾選結果會保留在此瀏覽器中。</span><button class="reset-button" id="resetButton" type="button">清除本週勾選</button></footer>
+  </main>
+  <script>
+    const storageKey = 'english-conversation-week-1-tasks';
+    const tasks = [...document.querySelectorAll('input[data-task]')];
+    const dayCards = [...document.querySelectorAll('.day-card')];
+    const days = dayCards.map(card => ({
+      id: card.dataset.day,
+      title: card.dataset.title,
+      card,
+      tasks: [...card.querySelectorAll('input[data-task]')]
+    }));
+    const percentage = document.getElementById('percentage');
+    const progressFill = document.getElementById('progressFill');
+    const progressNote = document.getElementById('progressNote');
+    const celebration = document.getElementById('celebration');
+    const progressbar = document.querySelector('[role="progressbar"]');
+    const dayNavigation = document.getElementById('dayNavigation');
+    const nextDayButton = document.getElementById('nextDayButton');
+    let activeDayId;
+
+    function getSavedTasks() {
+      try { return JSON.parse(localStorage.getItem(storageKey)) || {}; }
+      catch { return {}; }
+    }
+    function saveTasks() {
+      const status = Object.fromEntries(tasks.map(task => [task.dataset.task, task.checked]));
+      localStorage.setItem(storageKey, JSON.stringify(status));
+    }
+    function getUnlockedCount() {
+      const firstIncomplete = days.findIndex(day => !day.tasks.every(task => task.checked));
+      return firstIncomplete === -1 ? days.length : firstIncomplete + 1;
+    }
+    function showDay(dayId) {
+      const unlockedDays = days.slice(0, getUnlockedCount());
+      if (!unlockedDays.some(day => day.id === dayId)) return;
+      activeDayId = dayId;
+      localStorage.setItem(`${storageKey}-active-day`, activeDayId);
+      renderDayAccess();
+    }
+    function renderDayAccess() {
+      const unlockedCount = getUnlockedCount();
+      const unlockedDays = days.slice(0, unlockedCount);
+      if (!unlockedDays.some(day => day.id === activeDayId)) {
+        activeDayId = days[Math.max(0, unlockedCount - 1)].id;
+      }
+      dayCards.forEach(card => { card.hidden = card.dataset.day !== activeDayId; });
+      dayNavigation.replaceChildren(...unlockedDays.map(day => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `day-button${day.id === activeDayId ? ' active' : ''}`;
+        button.textContent = day.title;
+        button.setAttribute('aria-current', day.id === activeDayId ? 'page' : 'false');
+        button.addEventListener('click', () => showDay(day.id));
+        return button;
+      }));
+      const currentIndex = days.findIndex(day => day.id === activeDayId);
+      const canAdvance = days[currentIndex].tasks.every(task => task.checked) && currentIndex < days.length - 1;
+      nextDayButton.hidden = !canAdvance;
+      if (canAdvance) nextDayButton.textContent = `前往${days[currentIndex + 1].title}任務`;
+    }
+    function updateProgress() {
+      const completed = tasks.filter(task => task.checked).length;
+      const total = tasks.length;
+      const value = Math.round((completed / total) * 100);
+      percentage.textContent = `${value}%`;
+      progressFill.style.width = `${value}%`;
+      progressNote.textContent = `完成 ${completed} / ${total} 項練習`;
+      progressbar.setAttribute('aria-valuenow', value);
+      celebration.textContent = completed === total ? '太棒了！本週任務全數完成。' : completed >= 5 ? '持續累積中，做得很好！' : '';
+      tasks.forEach(task => task.closest('.task-item').classList.toggle('done', task.checked));
+      renderDayAccess();
+    }
+    const saved = getSavedTasks();
+    const savedActiveDay = localStorage.getItem(`${storageKey}-active-day`);
+    activeDayId = days.some(day => day.id === savedActiveDay) ? savedActiveDay : days[0].id;
+    tasks.forEach(task => {
+      task.checked = Boolean(saved[task.dataset.task]);
+      task.addEventListener('change', () => { saveTasks(); updateProgress(); });
+    });
+    nextDayButton.addEventListener('click', () => {
+      const currentIndex = days.findIndex(day => day.id === activeDayId);
+      showDay(days[currentIndex + 1].id);
+    });
+    document.getElementById('resetButton').addEventListener('click', () => {
+      if (!confirm('確定要清除本週所有勾選嗎？')) return;
+      tasks.forEach(task => { task.checked = false; });
+      localStorage.removeItem(`${storageKey}-active-day`);
+      activeDayId = days[0].id;
+      saveTasks(); updateProgress();
+    });
+    updateProgress();
+  </script>
+</body>
+</html>

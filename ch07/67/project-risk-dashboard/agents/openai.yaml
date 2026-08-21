@@ -1,0 +1,4 @@
+interface:
+  display_name: "\u5C08\u6848\u98A8\u96AA\u5100\u8868\u677F"
+  short_description: "\u5F59\u6574\u5C08\u6848\u4F86\u6E90\u4E26\u7522\u51FA\u53EF\u8FFD\u6EAF\u7684\u98A8\u96AA\u3001\u6642\u7A0B\u8207\u6C7A\u7B56\u5100\u8868\u677F\u3002"
+  default_prompt: "Use $project-risk-dashboard to analyze the provided project sources and create a traceable risk dashboard."
